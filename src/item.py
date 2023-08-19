@@ -66,3 +66,16 @@ class Item:
     def string_to_number(str_number):
         int_number = int(float(str_number))
         return int_number
+
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}('{self.name}', {self.price}, {self.quantity})"
+
+    def __str__(self):
+        return self.name
+
+    def __add__(self, other):
+        if isinstance(other, Item):
+            return self.quantity + other.quantity
+        else:
+            raise TypeError("Ошибка")
