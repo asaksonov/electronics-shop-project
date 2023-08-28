@@ -1,6 +1,12 @@
 import csv
 
 
+class InstantiateCSVError(Exception):
+
+    def __init__(self, *args, **kwargs):
+        self.message = f'Файл поврежден'
+
+
 class Item:
     """
     Класс для представления товара в магазине.
@@ -54,19 +60,26 @@ class Item:
         return self.price
 
     @classmethod
-    def instantiate_from_csv(cls):
-        with open("../src/items.csv", newline="", encoding="utf-8") as csfile:
-            reader = csv.DictReader(csfile)
-            for row in reader:
-                print(row["name"], row["price"], row["quantity"])
-                list_item = cls(row["name"], row["price"], row["quantity"])
-                cls.all.append(list_item)
+    def instantiate_from_csv(cls, file_name="../src/items.csv"):
+        try:
+            with open(file_name, newline="", encoding="utf-8") as csfile:
+                reader = csv.DictReader(csfile)
+                for row in reader:
+                    try:
+                        list_item = cls(row["name"], row["price"], row["quantity"])
+                        if row["quantity"] == "" or row["price"] == "" or row["name"] == "":
+                            raise InstantiateCSVError
+                    except InstantiateCSVError as ex:
+                        print(ex.message)
+                    cls.all.append(list_item)
+
+        except FileNotFoundError:
+            print(f"Отсутствует файл {file_name}")
 
     @staticmethod
     def string_to_number(str_number):
         int_number = int(float(str_number))
         return int_number
-
 
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.name}', {self.price}, {self.quantity})"
